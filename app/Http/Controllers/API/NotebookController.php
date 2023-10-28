@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\NotebookRequest;
 use App\Http\Resources\NotebookResource;
 use App\Services\NotebookService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 /**
@@ -14,23 +15,35 @@ use Illuminate\Http\Request;
  *     description="API endpoints for managing notebook entries"
  * )
  */
+
 class NotebookController extends Controller
 {
+    /**
+     * @OA\Info(
+     *     title="Notebook API",
+     *     description="API endpoints for managing notebook entries",
+     *     version="1.0.0"
+     * )
+     */
 
-
+    /**
+     * Constructor.
+     */
     public function __construct(protected NotebookService $notebookService)
     {
     }
 
     /**
+     * Get a list of notebook entries.
+     *
      * @OA\Get(
-     *     path="/api/v1/notebook",
-     *     summary="Get a list of notebook entries with pagination",
+     *     path="/api/notebook",
+     *     summary="Get a list of notebook entries",
+     *     tags={"Notebook"},
      *     @OA\Parameter(
      *         name="per_page",
      *         in="query",
-     *         description="Number of items per page",
-     *         required=false,
+     *         description="Number of entries per page (default: 10)",
      *         @OA\Schema(type="integer")
      *     ),
      *     @OA\Response(
@@ -41,6 +54,10 @@ class NotebookController extends Controller
      *             @OA\Items(ref="#/components/schemas/NotebookResource")
      *         )
      *     )
+     * )
+     *
+     * @param Request $request
+     * @return JsonResponse
      */
     public function index(Request $request)
     {
@@ -50,57 +67,89 @@ class NotebookController extends Controller
     }
 
     /**
+     * Get a specific notebook entry by ID.
+     *
      * @OA\Get(
-     *     path="/api/v1/notebook/{id}",
-     *     summary="Get a notebook entry by ID",
+     *     path="/api/notebook/{id}",
+     *     summary="Get a specific notebook entry by ID",
+     *     tags={"Notebook"},
      *     @OA\Parameter(
      *         name="id",
      *         in="path",
-     *         description="ID of the notebook entry",
      *         required=true,
+     *         description="Notebook entry ID",
      *         @OA\Schema(type="integer")
      *     ),
      *     @OA\Response(
      *         response=200,
-     *         description="Notebook entry",
+     *         description="Notebook entry details",
      *         @OA\JsonContent(ref="#/components/schemas/NotebookResource")
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Notebook entry not found"
      *     )
+     * )
+     *
+     * @param int $id
+     * @return JsonResponse
      */
     public function show($id)
     {
         $note = $this->notebookService->getNoteById($id);
-        return new NotebookResource($note);
+        if ($note) {
+            return new NotebookResource($note);
+        } else {
+            return response()->json(['message' => 'Notebook entry not found'], 404);
+        }
     }
 
     /**
+     * Create a new notebook entry.
+     *
      * @OA\Post(
-     *     path="/api/v1/notebook",
+     *     path="/api/notebook",
      *     summary="Create a new notebook entry",
+     *     tags={"Notebook"},
      *     @OA\RequestBody(
      *         required=true,
      *         @OA\JsonContent(ref="#/components/schemas/NotebookRequest")
      *     ),
      *     @OA\Response(
      *         response=201,
-     *         description="Newly created notebook entry",
+     *         description="Notebook entry created successfully",
      *         @OA\JsonContent(ref="#/components/schemas/NotebookResource")
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Validation error"
      *     )
+     * )
+     *
+     * @param NotebookRequest $request
+     * @return JsonResponse
      */
     public function store(NotebookRequest $request)
     {
         $note = $this->notebookService->createNote($request);
-        return new NotebookResource($note);
+        return response()->json([
+            'data' => new NotebookResource($note),
+            'message' => 'Notebook entry created successfully'
+        ], 201);
     }
 
     /**
+     * Update an existing notebook entry.
+     *
      * @OA\Put(
-     *     path="/api/v1/notebook/{id}",
-     *     summary="Update a notebook entry by ID",
+     *     path="/api/notebook/{id}",
+     *     summary="Update an existing notebook entry",
+     *     tags={"Notebook"},
      *     @OA\Parameter(
      *         name="id",
      *         in="path",
-     *         description="ID of the notebook entry",
      *         required=true,
+     *         description="Notebook entry ID",
      *         @OA\Schema(type="integer")
      *     ),
      *     @OA\RequestBody(
@@ -109,35 +158,67 @@ class NotebookController extends Controller
      *     ),
      *     @OA\Response(
      *         response=200,
-     *         description="Updated notebook entry",
+     *         description="Notebook entry updated successfully",
      *         @OA\JsonContent(ref="#/components/schemas/NotebookResource")
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Notebook entry not found"
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Validation error"
      *     )
+     * )
+     *
+     * @param NotebookRequest $request
+     * @param int $id
+     * @return JsonResponse
      */
     public function update(NotebookRequest $request, $id)
     {
         $note = $this->notebookService->updateNote($request, $id);
-        return new NotebookResource($note);
+        if ($note) {
+            return new NotebookResource($note);
+        } else {
+            return response()->json(['message' => 'Notebook entry not found'], 404);
+        }
     }
 
     /**
+     * Delete a notebook entry by ID.
+     *
      * @OA\Delete(
-     *     path="/api/v1/notebook/{id}",
+     *     path="/api/notebook/{id}",
      *     summary="Delete a notebook entry by ID",
+     *     tags={"Notebook"},
      *     @OA\Parameter(
      *         name="id",
      *         in="path",
-     *         description="ID of the notebook entry",
      *         required=true,
+     *         description="Notebook entry ID",
      *         @OA\Schema(type="integer")
      *     ),
      *     @OA\Response(
      *         response=200,
-     *         description="Notebook entry deleted"
+     *         description="Notebook entry deleted successfully"
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Notebook entry not found"
      *     )
+     * )
+     *
+     * @param int $id
+     * @return JsonResponse
      */
     public function destroy($id)
     {
-        $this->notebookService->deleteNoteById($id);
-        return response()->json(['message' => 'Note deleted'], 200);
+        $deleted = $this->notebookService->deleteNoteById($id);
+        if ($deleted) {
+            return response()->json(['message' => 'Notebook entry deleted successfully'], 200);
+        } else {
+            return response()->json(['message' => 'Notebook entry not found'], 404);
+        }
     }
 }

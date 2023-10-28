@@ -15,7 +15,10 @@ class Notebook extends Model
         'phone',
         'email',
         'birthdate',
-        'photo',
     ];
 
+    public function photo()
+    {
+        return $this->hasOne(Photo::class);
+    }
 }

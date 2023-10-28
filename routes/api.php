@@ -18,10 +18,10 @@ use App\Http\Controllers\API\NotebookController;
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
-Route::prefix('v1')->group(function () {
-    Route::get('/notebook', [NotebookController::class, 'index']);
-    Route::get('/notebook/{id}', [NotebookController::class, 'show']);
-    Route::post('/notebook', [NotebookController::class, 'store']);
-    Route::put('notebook/{id}', [NotebookController::class, 'update']);
-    Route::delete('/notebook/{id}',  [NotebookController::class, 'destroy']);
+Route::prefix('notebook')->group(function () {
+    Route::get('', [NotebookController::class, 'index']);
+    Route::get('{id}', [NotebookController::class, 'show']);
+    Route::post('', [NotebookController::class, 'store']);
+    Route::post('{id}', [NotebookController::class, 'update']);
+    Route::delete('{id}',  [NotebookController::class, 'destroy']);
 });
