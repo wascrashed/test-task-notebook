@@ -16,15 +16,16 @@ use Illuminate\Http\Request;
  * )
  */
 
+/**
+ * @OA\Info(
+ *     title="Notebook API",
+ *     description="API endpoints for managing notebook entries",
+ *     version="1.0.0"
+ * )
+ */
 class NotebookController extends Controller
 {
-    /**
-     * @OA\Info(
-     *     title="Notebook API",
-     *     description="API endpoints for managing notebook entries",
-     *     version="1.0.0"
-     * )
-     */
+
 
     /**
      * Constructor.
@@ -40,12 +41,6 @@ class NotebookController extends Controller
      *     path="/api/notebook",
      *     summary="Get a list of notebook entries",
      *     tags={"Notebook"},
-     *     @OA\Parameter(
-     *         name="per_page",
-     *         in="query",
-     *         description="Number of entries per page (default: 10)",
-     *         @OA\Schema(type="integer")
-     *     ),
      *     @OA\Response(
      *         response=200,
      *         description="List of notebook entries",
@@ -63,7 +58,11 @@ class NotebookController extends Controller
     {
         $perPage = $request->get('per_page', 10);
         $notes = $this->notebookService->getAllNotes($perPage);
-        return NotebookResource::collection($notes);
+
+        return response()->json([
+            'data' => NotebookResource::collection($notes),
+            'message' => 'Notebooks list'
+        ], 200);
     }
 
     /**
@@ -98,7 +97,10 @@ class NotebookController extends Controller
     {
         $note = $this->notebookService->getNoteById($id);
         if ($note) {
-            return new NotebookResource($note);
+            return response()->json([
+                'data' => new NotebookResource($note),
+                'message' => 'Notebook info'
+            ], 200);
         } else {
             return response()->json(['message' => 'Notebook entry not found'], 404);
         }
@@ -113,7 +115,7 @@ class NotebookController extends Controller
      *     tags={"Notebook"},
      *     @OA\RequestBody(
      *         required=true,
-     *         @OA\JsonContent(ref="#/components/schemas/NotebookRequest")
+     *         @OA\JsonContent(type="object", ref="#/components/schemas/NotebookRequest")
      *     ),
      *     @OA\Response(
      *         response=201,
@@ -137,6 +139,7 @@ class NotebookController extends Controller
             'message' => 'Notebook entry created successfully'
         ], 201);
     }
+
 
     /**
      * Update an existing notebook entry.
