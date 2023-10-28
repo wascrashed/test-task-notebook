@@ -1,18 +1,18 @@
 <?php
 
 return [
-    'default' => 'v1',
+    'default' => 'default',
     'documentations' => [
-        'v1' => [
+        'default' => [
             'api' => [
-                'title' => 'API Documentation',
+                'title' => 'L5 Swagger UI',
             ],
 
             'routes' => [
                 /*
                  * Route for accessing api documentation interface
                 */
-                'api' => 'api',
+                'api' => 'api/documentation',
             ],
             'paths' => [
                 /*

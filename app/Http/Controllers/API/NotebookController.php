@@ -115,7 +115,15 @@ class NotebookController extends Controller
      *     tags={"Notebook"},
      *     @OA\RequestBody(
      *         required=true,
-     *         @OA\JsonContent(type="object", ref="#/components/schemas/NotebookRequest")
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="full_name", type="string"),
+     *             @OA\Property(property="phone", type="string"),
+     *             @OA\Property(property="email", type="string"),
+     *             @OA\Property(property="company", type="string", nullable=true),
+     *             @OA\Property(property="birthdate", type="string", format="date", nullable=true),
+     *             @OA\Property(property="photo", type="string", format="binary", nullable=true),
+     *         )
      *     ),
      *     @OA\Response(
      *         response=201,
@@ -144,7 +152,7 @@ class NotebookController extends Controller
     /**
      * Update an existing notebook entry.
      *
-     * @OA\Put(
+     * @OA\Post(
      *     path="/api/notebook/{id}",
      *     summary="Update an existing notebook entry",
      *     tags={"Notebook"},
@@ -157,7 +165,15 @@ class NotebookController extends Controller
      *     ),
      *     @OA\RequestBody(
      *         required=true,
-     *         @OA\JsonContent(ref="#/components/schemas/NotebookRequest")
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="full_name", type="string"),
+     *             @OA\Property(property="phone", type="string"),
+     *             @OA\Property(property="email", type="string"),
+     *             @OA\Property(property="company", type="string", nullable=true),
+     *             @OA\Property(property="birthdate", type="string", format="date", nullable=true),
+     *             @OA\Property(property="photo", type="string", format="binary", nullable=true),
+     *         )
      *     ),
      *     @OA\Response(
      *         response=200,
